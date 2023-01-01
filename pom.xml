@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>tsp.mcnexus</groupId>
-    <artifactId>MCNexus</artifactId>
-    <version>1.0.0-rc.1</version>
+    <groupId>tsp.nexuslib</groupId>
+    <artifactId>NexusLib</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     
-    <name>MCNexus</name>
+    <name>NexusLib</name>
     <description>Plugin Library</description>
 
     <properties>
@@ -28,7 +28,7 @@
         <dependency>
                <groupId>org.spigotmc</groupId>
                <artifactId>spigot-api</artifactId>
-               <version>1.19.2-R0.1-SNAPSHOT</version>
+               <version>1.19.3-R0.1-SNAPSHOT</version>
                <scope>provided</scope>
         </dependency>
     </dependencies>
