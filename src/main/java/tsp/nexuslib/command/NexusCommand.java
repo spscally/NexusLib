@@ -74,10 +74,12 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
 
             getCommandHandler().ifPresent(handler -> handler.handle(sender, args));
         } else {
-            // Handle sub command
-            getSubCommand(args[0])
-                    .ifPresentOrElse(sub -> sub.getCommandHandler().ifPresent(handler -> handler.handle(sender, args)),
-                    () -> getInvalidSubCommandMessage().ifPresent(msg -> sender.sendMessage(StringUtils.colorize(msg))));
+            if (subCommands != null) {
+                // Handle sub command
+                getSubCommand(args[0])
+                        .ifPresentOrElse(sub -> sub.getCommandHandler().ifPresent(handler -> handler.handle(sender, args)),
+                                () -> getInvalidSubCommandMessage().ifPresent(msg -> sender.sendMessage(StringUtils.colorize(msg))));
+            }
         }
         return true;
     }

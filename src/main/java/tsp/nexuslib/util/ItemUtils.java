@@ -7,6 +7,7 @@ import tsp.nexuslib.NexusPlugin;
 import tsp.nexuslib.persistence.PersistentDataAPI;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -22,6 +23,10 @@ public final class ItemUtils {
     public static final NamespacedKey LAST_USED_KEY = new NamespacedKey(NexusPlugin.getInstance(), "item_lastused");
 
     private ItemUtils() {}
+
+    public static Optional<ItemMeta> getMeta(ItemStack item) {
+        return Optional.ofNullable(item.getItemMeta());
+    }
 
     /**
      * Add cooldown to an item
