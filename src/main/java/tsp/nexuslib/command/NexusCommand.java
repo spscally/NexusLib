@@ -27,33 +27,27 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
     private final String name;
     private final String permission;
     private final String noPermissionMessage;
-    private final String invalidSubCommandMessage;
-    private final Map<String, NexusSubCommand> subCommands;
 
     private final CommandHandler commandHandler;
     private final TabHandler tabHandler;
 
     /**
-     * Initialize a new {@link NexusSubCommand}.
+     * Initialize a new {@link NexusCommand}.
      * You should use the {@link Builder} to create the sub-command!
      *
      * @param name                The name.
      * @param permission          The permission required. Set to null or empty for no permission.
      * @param noPermissionMessage The message sent if the sender doesn't have permission. Set to null or empty for no message.
-     * @param invalidSubCommandMessage The message sent if the sub-command does not exist. Set to null or empty for no message.
-     * @param subCommands         The {@link NexusSubCommand sub-commands} for this command. Set to null for no sub-commands.
      * @param commandHandler      The {@link CommandHandler} that will handle the execution. Set to null for no execution.
      * @param tabHandler          The {@link TabHandler} that will handle tab completions. Set to null for no tab completions.
      * @see Builder
      */
-    public NexusCommand(@Nonnull String name, @Nullable String permission, @Nullable String noPermissionMessage, @Nullable String invalidSubCommandMessage, @Nullable Map<String, NexusSubCommand> subCommands, @Nullable CommandHandler commandHandler, @Nullable TabHandler tabHandler) {
+    public NexusCommand(@Nonnull String name, @Nullable String permission, @Nullable String noPermissionMessage, @Nullable CommandHandler commandHandler, @Nullable TabHandler tabHandler) {
         Validate.notNull(name, "Name can not be null!");
 
         this.name = name;
         this.permission = permission;
         this.noPermissionMessage = noPermissionMessage;
-        this.invalidSubCommandMessage = invalidSubCommandMessage;
-        this.subCommands = subCommands;
         this.commandHandler = commandHandler;
         this.tabHandler = tabHandler;
     }
@@ -65,22 +59,13 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
     @Internal
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, @Nonnull String[] args) {
-        if (args.length == 0) {
-            // Handle main command
-            if (getPermission().isPresent() && (!getPermission().get().isEmpty() && !sender.hasPermission(getPermission().get()))) {
-                getNoPermissionMessage().ifPresent(msg -> sender.sendMessage(StringUtils.colorize(msg)));
-                return true;
-            }
-
-            getCommandHandler().ifPresent(handler -> handler.handle(sender, args));
-        } else {
-            if (subCommands != null) {
-                // Handle sub command
-                getSubCommand(args[0])
-                        .ifPresentOrElse(sub -> sub.getCommandHandler().ifPresent(handler -> handler.handle(sender, args)),
-                                () -> getInvalidSubCommandMessage().ifPresent(msg -> sender.sendMessage(StringUtils.colorize(msg))));
-            }
+        // Handle main command
+        if (getPermission().isPresent() && (!getPermission().get().isEmpty() && !sender.hasPermission(getPermission().get()))) {
+            getNoPermissionMessage().ifPresent(msg -> sender.sendMessage(StringUtils.colorize(msg)));
+            return true;
         }
+
+        getCommandHandler().ifPresent(handler -> handler.handle(sender, args));
         return true;
     }
 
@@ -125,22 +110,6 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
         return Optional.ofNullable(noPermissionMessage);
     }
 
-    public Optional<String> getInvalidSubCommandMessage() {
-        return Optional.ofNullable(invalidSubCommandMessage);
-    }
-
-    public Optional<Map<String, NexusSubCommand>> getSubCommands() {
-        return Optional.ofNullable(subCommands);
-    }
-
-    public Optional<NexusSubCommand> getSubCommand(String name) {
-        if (subCommands == null) {
-            return Optional.empty();
-        }
-
-        return Optional.ofNullable(subCommands.get(name));
-    }
-
     public Optional<CommandHandler> getCommandHandler() {
         return Optional.ofNullable(commandHandler);
     }
@@ -155,7 +124,7 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
         private String p;
         private String pm;
         private String isc;
-        private Map<String, NexusSubCommand> sc;
+        private Map<String, NexusCommand> sc;
         private CommandHandler h;
         private TabHandler th;
 
@@ -180,18 +149,6 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
             return this;
         }
 
-        public Builder invalidSubCommandMessage(@Nullable String message) {
-            this.isc = message;
-            return this;
-        }
-
-        public Builder subCommands(NexusSubCommand... subCommands) {
-            for (NexusSubCommand sub : subCommands) {
-                this.sc.put(sub.getName(), sub);
-            }
-            return this;
-        }
-
         public Builder handler(@Nullable CommandHandler handler) {
             this.h = handler;
             return this;
@@ -203,7 +160,7 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
         }
 
         public NexusCommand build() {
-            return new NexusCommand(n, p, pm, isc, sc, h, th);
+            return new NexusCommand(n, p, pm, h, th);
         }
 
     }
