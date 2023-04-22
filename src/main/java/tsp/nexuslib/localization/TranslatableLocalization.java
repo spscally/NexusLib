@@ -1,5 +1,6 @@
 package tsp.nexuslib.localization;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -33,7 +34,7 @@ import java.util.regex.Pattern;
 
 /**
  * Translatable Localization Utility Class.
- * Gist: https://gist.github.com/TheSilentPro/ce7d9ee24a8136f7aa486738a4b85e46
+ * <a href="https://gist.github.com/TheSilentPro/ce7d9ee24a8136f7aa486738a4b85e46">Gist (Source)</a>
  *
  * @author TheSilentPro (Silent)
  */
@@ -181,6 +182,10 @@ public class TranslatableLocalization {
             // Message not specified in language file, attempt to find it in the main one.
             messages = data.get(defaultLanguage);
             message = messages.getString(key);
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null && message != null) {
+            message = PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(uuid), message);
         }
 
         return Optional.ofNullable(message);
@@ -349,6 +354,8 @@ public class TranslatableLocalization {
                         if ((out.getName().endsWith(".yml") || out.getName().endsWith(".yaml")) && !out.exists()) {
                             Files.copy(path, out.toPath());
                         }
+
+                        fs.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
