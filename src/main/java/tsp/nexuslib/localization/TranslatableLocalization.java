@@ -354,8 +354,6 @@ public class TranslatableLocalization {
                         if ((out.getName().endsWith(".yml") || out.getName().endsWith(".yaml")) && !out.exists()) {
                             Files.copy(path, out.toPath());
                         }
-
-                        fs.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
