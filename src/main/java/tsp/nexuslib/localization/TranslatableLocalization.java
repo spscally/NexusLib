@@ -1,6 +1,5 @@
 package tsp.nexuslib.localization;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -15,8 +14,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -24,6 +29,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +38,8 @@ import java.util.UUID;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import me.clip.placeholderapi.PlaceholderAPI;
 
 /**
  * Translatable Localization Utility Class.
@@ -53,6 +62,7 @@ public class TranslatableLocalization {
 
     @SuppressWarnings("RegExpRedundantEscape")
     private final Pattern ARGS_PATTERN = Pattern.compile("(\\{\\$arg(\\d+)\\})", Pattern.CASE_INSENSITIVE); // (\{\$arg(\d+)\})
+    private final Pattern DELIMITER = Pattern.compile("=");
 
     /**
      * Creates a new {@link TranslatableLocalization} instance.
@@ -346,6 +356,7 @@ public class TranslatableLocalization {
         String[] array = url.toURI().toString().split("!");
         FileSystem fs = FileSystems.newFileSystem(URI.create(array[0]), new HashMap<>());
 
+        //noinspection resource
         Files.walk(Paths.get(url.toURI()))
                 .forEach(path -> {
                     try {
@@ -360,6 +371,54 @@ public class TranslatableLocalization {
                 });
 
         fs.close();
+    }
+
+    /**
+     * Load the languages of each receiver from a save file.
+     *
+     * @param file The file the data is saved in.
+     * @param skipInvalids Whether invalid entries should be skipped.
+     * @throws IOException Error
+     * @see #saveLanguages(File)
+     */
+    public void loadLanguages(File file, boolean skipInvalids) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] args = DELIMITER.split(line);
+                if (args.length != 1 && !skipInvalids) {
+                    throw new IllegalArgumentException("Invalid language entry: " + line);
+                } else {
+                    this.languages.put( UUID.fromString(args[0]), args[1]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Load the languages of each receiver from a save file.
+     *
+     * @param file The file the data is saved in.
+     * @throws IOException Error!
+     * @see #saveLanguages(File)
+     */
+    public void loadLanguages(File file) throws IOException {
+        loadLanguages(file, true);
+    }
+
+    /**
+     * Save the languages of receivers to a file.
+     *
+     * @param file The file to save them in.
+     * @throws FileNotFoundException Error! File does not exist.
+     * @see #loadLanguages(File, boolean)
+     */
+    public void saveLanguages(File file) throws FileNotFoundException {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            for (Map.Entry<UUID, String> entry : languages.entrySet()) {
+                writer.println(entry.getKey().toString() + "=" + entry.getValue());
+            }
+        }
     }
 
     /**
@@ -412,13 +471,13 @@ public class TranslatableLocalization {
     }
 
     /**
-     * Retrieve a {@link Map} of all loaded language settings for each receiver.
+     * Retrieve an unmodifiable {@link Map} of all loaded language settings for each receiver.
      *
      * @return The language map. Format: Receiver, Language
      */
     @Nonnull
     public Map<UUID, String> getLanguageMap() {
-        return languages;
+        return Collections.unmodifiableMap(languages);
     }
 
     /**
@@ -444,6 +503,17 @@ public class TranslatableLocalization {
         notNull(lang, "Lang can not be null!");
 
         languages.put(uuid, lang);
+    }
+
+    /**
+     * Remove a receivers language entry.
+     *
+     * @param uuid The UUID of the receiver.
+     */
+    public void removeLanguage(UUID uuid) {
+        notNull(uuid, "UUID can not be null!");
+
+        this.languages.remove(uuid);
     }
 
     /**
