@@ -1,12 +1,12 @@
-package tsp.nexuslib.util;
+package tsp.nexuslib.util.manager;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class Manager<K, V> {
+public class Manager<K, V> {
 
-    private final Map<K, V> registry = new HashMap<>();
+    private final HashMap<K, V> registry = new HashMap<>();
 
     public Optional<V> set(K k, V v) {
         return Optional.ofNullable(this.registry.put(k, v));
