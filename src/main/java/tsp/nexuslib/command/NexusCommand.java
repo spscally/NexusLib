@@ -27,7 +27,6 @@ public class NexusCommand implements CommandExecutor, TabCompleter {
     private final String name;
     private final String permission;
     private final String noPermissionMessage;
-
     private final CommandHandler commandHandler;
     private final TabHandler tabHandler;
 

@@ -28,6 +28,14 @@ public final class ItemUtils {
         return Optional.ofNullable(item.getItemMeta());
     }
 
+    public static Optional<String> getDisplayName(ItemStack item) {
+        return getMeta(item).map(meta -> meta.hasDisplayName() ? meta.getDisplayName() : null);
+    }
+
+    public static Optional<String> getLocalizedName(ItemStack item) {
+        return getMeta(item).map(meta -> meta.hasLocalizedName() ? meta.getLocalizedName() : null);
+    }
+
     /**
      * Add cooldown to an item
      *
