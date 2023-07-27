@@ -58,4 +58,9 @@ public record SerializedLocation(@Nonnull UUID uniqueId, double x, double y, dou
         return Optional.ofNullable(pitch);
     }
 
+    @Nonnull
+    public String toString() {
+        return uniqueId.toString() + ";" + x + ";" + y + ";" + z + ";" + String.valueOf(yaw) + ";" + String.valueOf(pitch);
+    }
+
 }
