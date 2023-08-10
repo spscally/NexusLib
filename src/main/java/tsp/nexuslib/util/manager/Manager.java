@@ -29,7 +29,7 @@ public class Manager<K, V> implements Serializable {
         return Optional.ofNullable(this.registry.remove(k));
     }
 
-    public Map<K, V> getRegistry() {
+    public HashMap<K, V> getRegistry() {
         return registry;
     }
 

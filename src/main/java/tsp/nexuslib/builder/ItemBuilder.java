@@ -32,10 +32,8 @@ import java.util.stream.Collectors;
 /**
  * Class for building an {@link ItemStack}
  *
- * @deprecated Seems to be reflecting changes on each other items somehow, needs testing.
  * @author TheSilentPro
  */
-@Deprecated
 public class ItemBuilder {
 
     private final ItemStack item;
