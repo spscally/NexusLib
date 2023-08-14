@@ -123,6 +123,23 @@ public class TranslatableLocalization {
     }
 
     /**
+     * Send message to the receiver.
+     *
+     * @param receiver The receiver.
+     * @param message The message.
+     * @see #sendMessage(UUID, String)
+     */
+    private void sendTranslatedMessage(CommandSender receiver, String message) {
+        notNull(receiver, "UUID can not be null!");
+        notNull(message, "Message can not be null!");
+        if (message.isEmpty()) {
+            return;
+        }
+
+        receiver.sendMessage(message);
+    }
+
+    /**
      * Send a message to a receiver.
      *
      * @param receiver The receiver of the message.
@@ -199,6 +216,18 @@ public class TranslatableLocalization {
         }
 
         return Optional.ofNullable(message);
+    }
+
+    /**
+     * Retrieve a message by the receiver's language and the key.
+     *
+     * @param player The receiver.
+     * @param key The message key.
+     * @return If present, the message, otherwise an empty {@link Optional}
+     */
+    @Nonnull
+    public Optional<String> getMessage(Player player, String key) {
+        return getMessage(player.getUniqueId(), key);
     }
 
     // Console
@@ -281,7 +310,25 @@ public class TranslatableLocalization {
         if (receiver instanceof ConsoleCommandSender || receiver instanceof RemoteConsoleCommandSender) {
             sendConsoleMessage(key, function, args);
         } else if (receiver instanceof Player player) {
-            sendMessage(player.getUniqueId(), key, function, args);
+            notNull(receiver, "Receiver can not be null!");
+            notNull(key, "Key can not be null!");
+
+            getMessage(player.getUniqueId(), key).ifPresent(message -> {
+                if (args != null) {
+                    for (String arg : args) {
+                        if (arg != null) {
+                            Matcher matcher = ARGS_PATTERN.matcher(message);
+                            while (matcher.find()) {
+                                message = matcher.replaceAll(args[Integer.parseInt(matcher.group(2))]);
+                            }
+                        }
+                    }
+                }
+
+                // Apply function
+                message = function != null ? function.apply(message) : message;
+                sendTranslatedMessage(player, colorize ? ChatColor.translateAlternateColorCodes('&', message) : message);
+            });
         }
     }
 

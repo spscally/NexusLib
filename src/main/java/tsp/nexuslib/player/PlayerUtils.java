@@ -70,7 +70,7 @@ public final class PlayerUtils {
                 Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
                 return (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | NoSuchFieldException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 return -1;
             }
         }
