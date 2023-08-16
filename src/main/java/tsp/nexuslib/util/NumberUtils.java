@@ -12,6 +12,16 @@ public final class NumberUtils {
 
     private NumberUtils() {}
 
+    public static int minMax(int n, int min, int max) {
+        if (n < min) {
+            n = min;
+        }
+        if (n > max) {
+            n = max;
+        }
+        return n;
+    }
+
     /**
      * Chance to do something
      *

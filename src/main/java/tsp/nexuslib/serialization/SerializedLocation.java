@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Serialized {@link Location}.
@@ -24,10 +25,18 @@ import java.util.UUID;
  */
 public record SerializedLocation(@Nonnull UUID uniqueId, double x, double y, double z, @Nullable Float yaw, @Nullable Float pitch) implements Serializable {
 
+    private static final Pattern DELIMITER = Pattern.compile(";");
+
     public SerializedLocation(@Nonnull UUID uniqueId, double x, double y, double z) {
         this(uniqueId, x, y, z, null, null);
     }
 
+    /**
+     * Convert from {@link Location}.
+     *
+     * @param location The location object
+     * @return location
+     */
     public static SerializedLocation of(@Nonnull Location location) {
         Validate.notNull(location, "Location can not be null!");
         Validate.notNull(location.getWorld(), "World location can not be null!");
@@ -35,6 +44,24 @@ public record SerializedLocation(@Nonnull UUID uniqueId, double x, double y, dou
         return new SerializedLocation(location.getWorld().getUID(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     }
 
+    /**
+     * Convert from string.
+     *
+     * @param serializedLocation Location serialized with {@link #toString()}
+     * @return location
+     */
+    public static SerializedLocation of(@Nonnull String serializedLocation) {
+        Validate.notNull(serializedLocation, "Location can not be null!");
+
+        String[] args = DELIMITER.split(serializedLocation);
+        return new SerializedLocation(UUID.fromString(args[0]), Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]), parseFloat(args[4]), parseFloat(args[5]));
+    }
+
+    /**
+     * Convert current to {@link Location}.
+     *
+     * @return Optional location
+     */
     public Optional<Location> toLocation() {
         World world = Bukkit.getWorld(uniqueId);
         if (world == null) {
@@ -58,9 +85,22 @@ public record SerializedLocation(@Nonnull UUID uniqueId, double x, double y, dou
         return Optional.ofNullable(pitch);
     }
 
+    /**
+     * Serialize the location to a string.
+     *
+     * @return string representation of the location.
+     */
     @Nonnull
     public String toString() {
-        return uniqueId.toString() + ";" + x + ";" + y + ";" + z + ";" + String.valueOf(yaw) + ";" + String.valueOf(pitch);
+        return uniqueId.toString() + ";" + x + ";" + y + ";" + z + ";" + yaw + ";" + pitch;
+    }
+
+    private static Float parseFloat(String raw) {
+        try {
+            return Float.parseFloat(raw);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 
 }
