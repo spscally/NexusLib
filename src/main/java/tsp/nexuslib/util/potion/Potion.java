@@ -16,7 +16,7 @@ import java.util.Optional;
 public enum Potion {
 
     SPEED(PotionEffectType.SPEED),
-    SLOW(PotionEffectType.SLOW),
+    SLOWNESS(PotionEffectType.SLOW),
     HASTE(PotionEffectType.FAST_DIGGING),
     MINING_FATIGUE(PotionEffectType.SLOW_DIGGING),
     STRENGTH(PotionEffectType.INCREASE_DAMAGE),
@@ -69,6 +69,16 @@ public enum Potion {
         return apply(entity, seconds, 1);
     }
 
+    public boolean applyRaw(LivingEntity entity, int ticks, int amplifier) {
+        Validate.notNull(entity, "Entity can not be null!");
+        return entity.addPotionEffect(new PotionEffect(type, ticks, amplifier));
+    }
+
+    public boolean applyRaw(LivingEntity entity, int ticks) {
+        Validate.notNull(entity, "Entity can not be null!");
+        return entity.addPotionEffect(new PotionEffect(type, ticks, 0));
+    }
+
     public boolean apply(ItemStack item, int seconds, int amplifier) {
         Validate.notNull(item, "Item can not be null!");
         if (!(item.getItemMeta() instanceof PotionMeta meta)) {
@@ -82,16 +92,6 @@ public enum Potion {
     public boolean apply(ItemStack item, int seconds) {
         Validate.notNull(item, "Item can not be null!");
         return apply(item, seconds, 1);
-    }
-
-    public boolean applyRaw(LivingEntity entity, int ticks, int amplifier) {
-        Validate.notNull(entity, "Entity can not be null!");
-        return entity.addPotionEffect(new PotionEffect(type, ticks, amplifier));
-    }
-
-    public boolean applyRaw(LivingEntity entity, int ticks) {
-        Validate.notNull(entity, "Entity can not be null!");
-        return entity.addPotionEffect(new PotionEffect(type, ticks, 0));
     }
 
     public boolean applyRaw(ItemStack item, int ticks, int amplifier) {

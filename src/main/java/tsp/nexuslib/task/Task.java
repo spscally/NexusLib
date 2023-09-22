@@ -6,39 +6,33 @@ import org.bukkit.scheduler.BukkitTask;
 import tsp.nexuslib.util.Validate;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a bukkit task
+ * Represents a bukkit task.
  *
- * @author TheSilentPro
+ * @author TheSilentPro (Silent)
  */
 public interface Task extends Runnable {
 
-    /**
-     * Delay before this task is run
-     * 
-     * @return The delay. If this is below 0 there will be no delay
-     */
-    default long getDelay() {
-        return -1;
+    default Duration getDelay() {
+        return Duration.ofMillis(-1);
     }
 
-    /**
-     * Interval at which this task will repeat
-     *
-     * @return The interval. If this is below 0 the task will not repeat
-     */
-    default long getRepeatInterval() {
-        return -1;
+    default Duration getRepeatInterval() {
+        return Duration.ofMillis(-1);
     }
 
-    /**
-     * If true the task will run asynchronously
-     *
-     * @return Whether this task should run asynchronously
-     */
+    default long getDelayTicks() {
+        return getDelay().toSeconds() * 20;
+    }
+
+    default long getRepeatIntervalTicks() {
+        return getRepeatInterval().toSeconds() * 20;
+    }
+
     default boolean isAsync() {
         return false;
     }
@@ -49,32 +43,34 @@ public interface Task extends Runnable {
      * @param plugin Instance of the plugin which is scheduling this task
      * @return BukkitTask result
      */
+    @Nonnull
     default BukkitTask schedule(@Nonnull JavaPlugin plugin) {
         Validate.notNull(plugin, "Plugin must not be null!");
 
         BukkitScheduler scheduler = plugin.getServer().getScheduler();
+        long repeat = this.getRepeatIntervalTicks();
+        long delay = this.getDelayTicks();
+
         if (isAsync()) {
-            // Async
-            if (this.getRepeatInterval() > -1) {
-                return scheduler.runTaskTimerAsynchronously(plugin, this, this.getDelay(), this.getRepeatInterval());
+            if (repeat > -1 && delay > -1) {
+                return scheduler.runTaskTimerAsynchronously(plugin, this, delay, repeat);
+            } else if (repeat > -1) {
+                return scheduler.runTaskTimerAsynchronously(plugin, this, 0, repeat);
+            } else if (delay > -1) {
+                return scheduler.runTaskLaterAsynchronously(plugin, this, delay);
+            } else {
+                return scheduler.runTaskAsynchronously(plugin, this);
             }
-
-            if (this.getDelay() > -1) {
-                return scheduler.runTaskLaterAsynchronously(plugin, this, this.getDelay());
-            }
-
-            return scheduler.runTaskAsynchronously(plugin, this);
         } else {
-            // Sync
-            if (this.getRepeatInterval() > -1) {
-                return scheduler.runTaskTimer(plugin, this, this.getDelay(), this.getRepeatInterval());
+            if (repeat > -1 && delay > -1) {
+                return scheduler.runTaskTimer(plugin, this, delay, repeat);
+            } else if (repeat > -1) {
+                return scheduler.runTaskTimer(plugin, this, 0, repeat);
+            } else if (delay > -1) {
+                return scheduler.runTaskLater(plugin, this, delay);
+            } else {
+                return scheduler.runTask(plugin, this);
             }
-
-            if (this.getDelay() > -1) {
-                return scheduler.runTaskLater(plugin, this, this.getDelay());
-            }
-
-            return scheduler.runTask(plugin, this);
         }
     }
 
@@ -85,6 +81,7 @@ public interface Task extends Runnable {
      * @param tasks The tasks to schedule
      * @return BukkitTask result
      */
+    @Nonnull
     static List<BukkitTask> schedule(@Nonnull JavaPlugin plugin, @Nonnull Task... tasks) {
         Validate.notNull(plugin, "Plugin must not be null!");
         Validate.notNull(tasks, "Tasks must not be null!");
