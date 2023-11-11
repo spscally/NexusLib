@@ -9,8 +9,8 @@ public class NexusLogger extends Logger {
 
     private final boolean debug;
 
-    public NexusLogger(boolean debug) {
-        super("ArcaneEnchantments", null);
+    public NexusLogger(String name, boolean debug) {
+        super(name, null);
         this.debug = debug;
         setParent(Bukkit.getLogger());
     }
