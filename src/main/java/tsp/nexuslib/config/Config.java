@@ -1,138 +1,192 @@
 package tsp.nexuslib.config;
 
+import com.google.common.annotations.Beta;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.List;
 import java.util.Optional;
 
 /**
- * Better config handling.
- * <p>
- * Usage:
- *   Config config = (Config) YamlConfiguration.loadConfiguration(file);
- * </p>
+ * Config expansion.
  *
  * @author TheSilentPro (Silent)
  */
+@Beta
 @SuppressWarnings("unused")
-public class Config extends YamlConfiguration {
+public class Config {
 
-    @Nullable
-    public Optional<Object> getOptional(@NotNull String path) {
-        return Optional.ofNullable(super.get(path));
+    private FileConfiguration data;
+    
+    public Config(FileConfiguration data) {
+        this.data = data;
     }
 
-    @NotNull
-    public <T> Optional<T> getOptionalObject(@NotNull String path, @NotNull Class<T> clazz) {
-        return Optional.ofNullable(super.getObject(path, clazz));
+    public Config(File file) {
+        this.data = YamlConfiguration.loadConfiguration(file);
     }
 
-    public Optional<Boolean> getOptionalBoolean(@NotNull String path) {
-        return Optional.of(super.getBoolean(path));
+    public void reload(File file) {
+        this.data = YamlConfiguration.loadConfiguration(file);
     }
 
-    public Optional<Color> getOptionalColor(@NotNull String path) {
-        return Optional.ofNullable(super.getColor(path));
-    }
-
-    public Optional<Double> getOptionalDouble(@NotNull String path) {
-        if (get(path) instanceof Number number) {
-            return Optional.of(number.doubleValue());
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public Optional<Float> getFloat(@NotNull String path) {
-        if (get(path) instanceof Number number) {
-            return Optional.of(number.floatValue());
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    @NotNull
-    public Optional<Integer> getOptionalInt(@NotNull String path) {
-        if (get(path) instanceof Number number) {
-            return Optional.of(number.intValue());
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    @NotNull
-    public Optional<Long> getOptionalLong(@NotNull String path) {
-        if (get(path) instanceof Number number) {
-            return Optional.of(number.longValue());
-        } else {
-            return Optional.empty();
-        }
+    public void reload(FileConfiguration data) {
+        this.data = data;
     }
 
     @Nullable
-    public Number getNumber(@NotNull String path) {
-        if (get(path) instanceof Number number) {
+    public Optional<Object> getOptional(@Nonnull String path) {
+        return Optional.ofNullable(data.get(path));
+    }
+
+    @Nonnull
+    public <T> Optional<T> getOptionalObject(@Nonnull String path, @Nonnull Class<T> clazz) {
+        return Optional.ofNullable(data.getObject(path, clazz));
+    }
+
+    public Optional<Boolean> getOptionalBoolean(@Nonnull String path) {
+        return data.contains(path) ? Optional.of(data.getBoolean(path)) : Optional.empty();
+    }
+
+    public Optional<Color> getOptionalColor(@Nonnull String path) {
+        return Optional.ofNullable(data.getColor(path));
+    }
+
+    public Optional<Double> getOptionalDouble(@Nonnull String path) {
+        if (data.get(path) instanceof Double n) {
+            return Optional.of(n);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public float getFloat(@Nonnull String path) {
+        return getFloat(path, 0);
+    }
+
+    public float getFloat(@Nonnull String path, float def) {
+        if (data.get(path) instanceof Float n) {
+            return n;
+        } else {
+            return def;
+        }
+    }
+
+    public Optional<Float> getOptionalFloat(@Nonnull String path) {
+        if (data.get(path) instanceof Float n) {
+            return Optional.of(n);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Nonnull
+    public Optional<Integer> getOptionalInt(@Nonnull String path) {
+        if (data.get(path) instanceof Integer n) {
+            return Optional.of(n);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Nonnull
+    public Optional<Long> getOptionalLong(@Nonnull String path) {
+        if (data.get(path) instanceof Long n) {
+            return Optional.of(n);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Nullable
+    public Number getNumber(@Nonnull String path) {
+        if (data.get(path) instanceof Number number) {
             return number;
         } else {
             return null;
         }
     }
 
-    @NotNull
-    public Optional<Number> getOptionalNumber(@NotNull String path) {
+    @Nonnull
+    public Optional<Number> getOptionalNumber(@Nonnull String path) {
         return Optional.ofNullable(getNumber(path));
     }
 
-    @NotNull
-    public Optional<String> getOptionalString(@NotNull String path) {
-        return Optional.ofNullable(super.getString(path));
+    @Nonnull
+    public Optional<String> getOptionalString(@Nonnull String path) {
+        return Optional.ofNullable(data.getString(path));
     }
 
-    @NotNull
-    public Optional<ItemStack> getOptionalItemStack(@NotNull String path) {
-        return Optional.ofNullable(super.getItemStack(path));
+    @Nonnull
+    public <T> Optional<List<T>> getOptionalList(@Nonnull String path, Class<T> clazz) {
+        List<?> list = data.getList(path);
+        if (list != null && !list.isEmpty() && list.get(0).getClass().isInstance(clazz)) {
+            //noinspection unchecked
+            return Optional.of((List<T>) list);
+        } else {
+            return Optional.empty();
+        }
     }
 
-    @NotNull
-    public Optional<Location> getOptionalLocation(@NotNull String path) {
-        return Optional.ofNullable(super.getLocation(path));
+    @Nonnull
+    public <T extends ConfigurationSerializable> Optional<ConfigurationSerializable> getOptionalSerializable(@Nonnull String path, @Nonnull Class<T> clazz) {
+        return Optional.ofNullable(data.getSerializable(path, clazz));
     }
 
-    @NotNull
-    public Optional<OfflinePlayer> getOptionalOfflinePlayer(@NotNull String path) {
-        return Optional.ofNullable(super.getOfflinePlayer(path));
+    @Nonnull
+    public Optional<Vector> getOptionalVector(@Nonnull String path) {
+        return Optional.ofNullable(data.getVector(path));
     }
 
-    @NotNull
+    @Nonnull
+    public Optional<ItemStack> getOptionalItemStack(@Nonnull String path) {
+        return Optional.ofNullable(data.getItemStack(path));
+    }
+
+    @Nonnull
+    public Optional<Location> getOptionalLocation(@Nonnull String path) {
+        return Optional.ofNullable(data.getLocation(path));
+    }
+
+    @Nonnull
+    public Optional<OfflinePlayer> getOptionalOfflinePlayer(@Nonnull String path) {
+        return Optional.ofNullable(data.getOfflinePlayer(path));
+    }
+
+    @Nonnull
     public Optional<Configuration> getOptionalDefaults() {
-        return Optional.ofNullable(super.getDefaults());
+        return Optional.ofNullable(data.getDefaults());
     }
 
-    @NotNull
+    @Nonnull
     public Optional<Configuration> getOptionalRoot() {
-        return Optional.ofNullable(super.getRoot());
+        return Optional.ofNullable(data.getRoot());
     }
 
-    @NotNull
-    public Optional<ConfigurationSection> getOptionalConfigurationSection(@NotNull String path) {
-        return Optional.ofNullable(super.getConfigurationSection(path));
+    @Nonnull
+    public Optional<ConfigurationSection> getOptionalConfigurationSection(@Nonnull String path) {
+        return Optional.ofNullable(data.getConfigurationSection(path));
     }
 
     // Convenience methods
 
     public void setLocation(String path, Location location) {
-        set(path, location);
+        data.set(path, location);
     }
 
     public void setItemStack(String path, ItemStack itemStack) {
-        set(path, itemStack);
+        data.set(path, itemStack);
     }
 
 }

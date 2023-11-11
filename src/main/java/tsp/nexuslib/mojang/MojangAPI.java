@@ -184,35 +184,7 @@ public class MojangAPI {
         return getNameHistoryJson(uuid, 5000);
     }
 
-    public CompletableFuture<JsonArray> getServiceStatusJson(int timeout) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                String req = "https://status.mojang.com/check";
-                URLConnection connection = new URL(req).openConnection();
-                connection.setConnectTimeout(timeout);
-                connection.setRequestProperty("User-Agent", plugin.getName() + "-StatusFetcher");
-                connection.setRequestProperty("Accept", "application/json");
-
-                StringBuilder response = new StringBuilder();
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    String line;
-                    while((line = in.readLine()) != null) {
-                        response.append(line);
-                    }
-                }
-
-                return JsonParser.parseString(response.toString()).getAsJsonArray();
-            } catch (IOException ex) {
-                throw new CompletionException(ex);
-            }
-        }, executor);
-    }
-
-    public CompletableFuture<JsonArray> getServiceStatusJson() {
-        return getServiceStatusJson(5000);
-    }
-
-    public CompletableFuture<List<String>> getBlockedServersJson(int timeout) {
+    public CompletableFuture<List<String>> getBlockedServers(int timeout) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String req = "https://sessionserver.mojang.com/blockedservers";
@@ -236,8 +208,8 @@ public class MojangAPI {
         }, executor);
     }
 
-    public CompletableFuture<List<String>> getBlockedServersJson() {
-        return getBlockedServersJson(5000);
+    public CompletableFuture<List<String>> getBlockedServers() {
+        return getBlockedServers(5000);
     }
 
 }

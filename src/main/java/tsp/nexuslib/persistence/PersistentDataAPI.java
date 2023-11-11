@@ -101,6 +101,7 @@ public final class PersistentDataAPI {
      * @param uuid
      *            The uuid to put in the container
      */
+    @Deprecated
     public static void setUUID(PersistentDataHolder holder, NamespacedKey key, UUID uuid) {
         holder.getPersistentDataContainer().set(key, PersistentUUIDDataType.TYPE, uuid);
     }
@@ -829,6 +830,7 @@ public final class PersistentDataAPI {
      *            The key of the data to retrieve
      * @return The UUID associated with this key or null if it doesn't exist
      */
+    @Deprecated
     @Nullable
     public static UUID getUUID(PersistentDataHolder holder, NamespacedKey key) {
         return holder.getPersistentDataContainer().get(key, PersistentUUIDDataType.TYPE);
@@ -846,6 +848,7 @@ public final class PersistentDataAPI {
      *            The key of the data to retrieve
      * @return An {@link Optional} describing the result
      */
+    @Deprecated
     @Nonnull
     public static Optional<UUID> getOptionalUUID(PersistentDataHolder holder, NamespacedKey key) {
         return Optional.ofNullable(getUUID(holder, key));

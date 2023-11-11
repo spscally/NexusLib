@@ -1,53 +1,36 @@
 package tsp.nexuslib.logger;
 
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginLogger;
+import org.bukkit.Bukkit;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class NexusLogger extends PluginLogger implements SimpleLogger {
+public class NexusLogger extends Logger {
 
-    private boolean debug;
+    private final boolean debug;
 
-    public NexusLogger(Plugin plugin, boolean debug) {
-        super(plugin);
+    public NexusLogger(boolean debug) {
+        super("ArcaneEnchantments", null);
         this.debug = debug;
+        setParent(Bukkit.getLogger());
     }
 
-    public NexusLogger(Plugin plugin) {
-        this(plugin, false);
+    public void warn(String message) {
+        log(Level.WARNING, message);
     }
 
-    public void setDebug(boolean debug) {
-        this.debug = debug;
+    public void error(String message) {
+        log(Level.SEVERE, message);
     }
 
-    public boolean isDebug() {
-        return debug;
-    }
-
-    @Override
-    public void log(Level level, String msg) {
-        if (!debug && (level == Level.FINE || level == Level.FINER || level == Level.FINEST || level == Level.CONFIG)) {
-            return;
+    public void debug(String message) {
+        if (debug) {
+            log(Level.INFO, /*"\\e[0;36m" +*/ "[DEBUG]: " + message);
         }
-
-        super.log(level, msg);
     }
 
-    @Override
-    public void log(LogLevel level, String message) {
-        this.log(mapToLevel(level), message);
-    }
-
-    private Level mapToLevel(LogLevel logLevel) {
-        return switch (logLevel) {
-            case INFO -> Level.INFO;
-            case WARNING -> Level.WARNING;
-            case ERROR -> Level.SEVERE;
-            case DEBUG -> Level.FINE;
-            case TRACE -> Level.FINER;
-        };
+    public void trace(String message) {
+        log(Level.FINER, message);
     }
 
 }
