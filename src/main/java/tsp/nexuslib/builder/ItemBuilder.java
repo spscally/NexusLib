@@ -384,9 +384,9 @@ public class ItemBuilder {
      */
     public ItemBuilder setGlow(boolean glow) {
         if (glow) {
-            return enchant(item.getType() != Material.BOW ? Enchantment.ARROW_INFINITE : Enchantment.LUCK, 1, true);
+            return enchant(item.getType() != Material.BOW ? Enchantment.INFINITY : Enchantment.LUCK_OF_THE_SEA, 1, true);
         } else {
-            return disenchant(item.getType() != Material.BOW ? Enchantment.ARROW_INFINITE : Enchantment.LUCK);
+            return disenchant(item.getType() != Material.BOW ? Enchantment.INFINITY : Enchantment.LUCK_OF_THE_SEA);
         }
     }
 

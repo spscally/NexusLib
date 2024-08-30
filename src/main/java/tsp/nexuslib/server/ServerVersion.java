@@ -1,5 +1,6 @@
 package tsp.nexuslib.server;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
@@ -33,7 +34,7 @@ public enum ServerVersion {
     v_1_20(763), v_1_20_1(763), v_1_20_2(764), v_1_20_3(765), v_1_20_4(765), v_1_20_5(766), v_1_20_6(766),
     v_1_21(767);
 
-    private static final String NMS_VERSION_SUFFIX = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+    private static final String NMS_VERSION_SUFFIX = StringUtils.substringAfterLast(Bukkit.getServer().getClass().getPackage().getName().replace(".", ","), ",");
     private static final ServerVersion[] VALUES = values();
     public static ServerVersion[] reversedValues = new ServerVersion[VALUES.length];
     private static ServerVersion cachedVersion;
